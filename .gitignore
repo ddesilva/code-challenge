@@ -1,1 +1,8 @@
-/.idea/
+# Common patterns for all projects
+.DS_Store
+*.log
+.env
+.idea/
+.vscode/
+
+# Add any other global patterns here

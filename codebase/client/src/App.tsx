@@ -68,17 +68,8 @@ function App() {
       if (response.success) {
         setIsPaymentSuccess(true);
 
-        // Update the account balance in the local state
-        const updatedAccounts = accounts.map((acc) => {
-          if (acc.id === paymentData.accountId) {
-            return {
-              ...acc,
-              balance: acc.balance - paymentData.amount,
-            };
-          }
-          return acc;
-        });
-
+        // Fetch updated accounts from the backend
+        const updatedAccounts = await fetchAccounts();
         setAccounts(updatedAccounts);
       } else {
         throw new Error(response.message || "Payment failed");

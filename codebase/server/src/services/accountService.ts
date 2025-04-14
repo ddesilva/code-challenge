@@ -104,7 +104,7 @@ export const processPayment = async (
       }
 
       // Update account balance (in a real app, this would be a database update)
-      account.balance -= paymentRequest.amount;
+      account.balance += paymentRequest.amount;
 
       // Return success response
       resolve({

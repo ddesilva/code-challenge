@@ -1,69 +1,156 @@
-# 🧪 Take Home Challenge
+# Energy Accounts Payment System
 
-Build a React + Node.js application that renders a customer's energy accounts and allows a user to make a credit card payment.
+A React + Node.js application that allows users to view their energy accounts and make credit card payments.
 
-### 💡 Our guidance
-- You may choose whichever technology stack and libraries you are comfortable with.
-- This challenge covers both backend and frontend but **feel free to only focus on the area you are more comfortable with**.
-    - Showcase just the **frontend** by mocking backend calls.
-    - Showcase just the **backend** with tests or Swagger documentation.
-- We value **modern workflows**, so feel free to use **AI tools**, but be ready to discuss your solution.
-- We value your time. we're interested in **code quality and design decisions** not completeness of the AC's.
-  - Limit yourself to ~4 hours.
-  - You can add comments where and how you'd expand given more time.
-- **TypeScript** is essential to our platform — we encourage you to showcase its use.
-- Your code should **compile and run easily**.
-  - A simple `yarn start` (or `npm start`) for frontend and backend is preferred.
-- While testing is key in our platform, it’s **not a requirement for this challenge**.
+## 🚀 Features
 
-### 🎨 Frontend Acceptance Criteria (ACs)
+- View energy accounts with balance information
+- Filter accounts by energy type (Gas/Electricity)
+- Make credit card payments with real-time validation
+- Responsive design with modern UI components
+- TypeScript throughout frontend and backend
+- Comprehensive test coverage
 
-Build a single react page that renders a list of a customers energy accounts.
-- ✅ Fetch energy accounts from the backend.
-- ✅ The accounts should be rendered in a Card UI format stacked on top of each other and centered on the page.
-- ✅ The account balance should change color based on the value:
-    - Positive: **green**
-    - Negative: **red**
-    - Zero: **grey**
-- ✅ Implement a filter for filtering accounts by energy type.
-- ✅ Clicking on the "Make a Payment" button should open a modal with:
-    - title
-    - credit card details
-    - balance
-    - A "Pay" button
-- ✅ Clicking the "Pay" button should submit the credit card details to the backend, and on success, show a “Payment Successful” view with a close button.
+## 🛠 Tech Stack
 
-Example card:<br/>
-<img src="./example-ui/example-card.png" alt="card-example" width="640"/>
+### Frontend
 
+- React 18 with TypeScript
+- Vite for build tooling
+- TailwindCSS for styling
+- shadcn/ui for UI components
+- React Hook Form for form management
+- Vitest for testing
 
-Example payment modal<br/>
-<img src="./example-ui/example-modal.png" alt="modal-example" width="640"/>
+### Backend
 
-### Backend Acceptance Criteria (ACs)
+- Node.js with Express
+- TypeScript
+- Jest for testing
 
-Build out a simple Node.js API.
-- ✅ Implement an endpoint to fetch energy accounts
-- ✅ Implement an endpoint to process a credit card payment.
-- ✅ Mock downstream data sources for energy accounts + credit card processor. See: [Example mocks](./example-mocks/api-example.ts)
+## 🏃‍♂️ Getting Started
 
+### Prerequisites
 
-### 💎 What We Value
+- Node.js (v16+)
+- npm or yarn
 
-- Well-modularised, robust and clearly-written code.
-- Maintainability. Another team member should be able to easily work with your code after you've finished.
-- Good State management and code layout.
-- Solid understanding of react lifecycles , events and data fetching.
-- Solid understanding of styling technologies + technologies.
-- Solid understanding of modern react design principles and best practise.
-- Solid understanding of modern Node.js best practises.
-- Solid understanding of API design.
-- Solid understanding of TypeScript.
-- Solid understanding of security principles.
+### Installation & Running
 
-### 🚀 Presenting your code
+1. Clone the repository
+2. Install dependencies:
 
-You may either:
+```bash
+# Install backend dependencies
+cd codebase/server
+npm install
 
-- Create a branch, add your code to the `codebase` folder and submit a PR to the provided repository, **or**
-- Present your codebase during the next technical interview on your local machine.
+# Install frontend dependencies
+cd ../client
+npm install
+```
+
+3. Start the servers:
+
+```bash
+# Start backend (from server directory)
+npm start
+
+# Start frontend (from client directory)
+npm start
+```
+
+- Backend runs on: http://localhost:3001
+- Frontend runs on: http://localhost:5173
+
+## 🧪 Testing
+
+Both frontend and backend include comprehensive test suites:
+
+```bash
+# Run frontend tests
+cd client
+npm test
+
+# Run backend tests
+cd server
+npm test
+```
+
+## 📝 Implementation Notes
+
+### Frontend Architecture
+
+- Component-based architecture with reusable UI components
+- Custom hooks for data fetching and state management
+- Form validation with real-time feedback
+- Responsive design that works across devices
+- Error handling and loading states
+
+### Backend Architecture
+
+- RESTful API design
+- Service layer pattern for business logic
+- Mock data store for accounts and payments
+
+### Future Improvements
+
+- Add authentication/authorization
+- Implement real payment gateway integration
+- Add pagination for accounts list
+- Add more comprehensive error handling
+- Add loading skeletons for better UX
+- Add E2E tests with Cypress
+- Add proper logging system
+- Add proper environment configuration
+
+## 🎯 Requirements Met
+
+### Frontend
+
+✅ Fetch and display energy accounts
+✅ Card UI format with stacked layout
+✅ Color-coded account balances
+✅ Energy type filtering
+✅ Payment modal with form validation
+✅ Success/failure states for payments
+
+### Backend
+
+✅ RESTful endpoints for accounts and payments
+✅ Mock data implementation
+✅ Error handling
+✅ TypeScript integration
+
+## 📚 API Documentation
+
+### Endpoints
+
+#### GET /api/accounts
+
+Returns list of energy accounts
+
+#### POST /api/payment
+
+Process payment for an account
+
+Request body:
+
+```typescript
+{
+  accountId: string;
+  cardNumber: string;
+  cardholderName: string;
+  expiryDate: string;
+  cvv: string;
+  amount: number;
+}
+```
+
+## 👤 Author
+
+Simon Qi
+
+## 📄 License
+
+MIT

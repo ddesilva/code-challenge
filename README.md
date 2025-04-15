@@ -109,17 +109,25 @@ npm test
 ### Frontend
 
 ✅ Fetch and display energy accounts
+
 ✅ Card UI format with stacked layout
+
 ✅ Color-coded account balances
+
 ✅ Energy type filtering
+
 ✅ Payment modal with form validation
+
 ✅ Success/failure states for payments
 
 ### Backend
 
 ✅ RESTful endpoints for accounts and payments
+
 ✅ Mock data implementation
+
 ✅ Error handling
+
 ✅ TypeScript integration
 
 ## 📚 API Documentation

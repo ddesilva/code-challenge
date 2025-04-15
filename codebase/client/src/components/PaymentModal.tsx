@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EnergyAccount, PaymentRequest } from "../types";
 import {
   Dialog,
@@ -10,6 +10,8 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { CheckCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Label } from "./ui/label";
 
 interface PaymentModalProps {
   account: EnergyAccount | null;
@@ -19,6 +21,14 @@ interface PaymentModalProps {
   isSuccess: boolean;
 }
 
+interface PaymentFormValues {
+  cardNumber: string;
+  cardholderName: string;
+  expiryDate: string;
+  cvv: string;
+  amount: string;
+}
+
 const PaymentModal: React.FC<PaymentModalProps> = ({
   account,
   isOpen,
@@ -26,37 +36,67 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   onSubmit,
   isSuccess,
 }) => {
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardholderName, setCardholderName] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [amount, setAmount] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reset form when modal opens with a new account
-  React.useEffect(() => {
-    if (account) {
-      setCardNumber("");
-      setCardholderName("");
-      setExpiryDate("");
-      setCvv("");
-      setAmount("");
-    }
-  }, [account]);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<PaymentFormValues>({
+    defaultValues: {
+      cardNumber: "",
+      cardholderName: "",
+      expiryDate: "",
+      cvv: "",
+      amount: "",
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Reset form when modal opens with a new account
+  useEffect(() => {
+    if (account) {
+      reset();
+    }
+  }, [account, reset]);
+
+  // Format card number with spaces
+  const formatCardNumber = (value: string) => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, "");
+
+    // Add space after every 4 digits
+    let formatted = "";
+    for (let i = 0; i < digits.length; i++) {
+      if (i > 0 && i % 4 === 0) {
+        formatted += " ";
+      }
+      formatted += digits[i];
+    }
+
+    // Limit to 19 characters (16 digits + 3 spaces)
+    return formatted.slice(0, 19);
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCardNumber(e.target.value);
+    e.target.value = formatted;
+    setValue("cardNumber", formatted);
+  };
+
+  const processSubmit = async (data: PaymentFormValues) => {
     if (!account) return;
 
     setIsSubmitting(true);
     try {
       await onSubmit({
         accountId: account.id,
-        cardNumber,
-        cardholderName,
-        expiryDate,
-        cvv,
-        amount: parseFloat(amount),
+        cardNumber: data.cardNumber,
+        cardholderName: data.cardholderName,
+        expiryDate: data.expiryDate,
+        cvv: data.cvv,
+        amount: parseFloat(data.amount),
       });
     } catch (error) {
       console.error("Payment submission error:", error);
@@ -85,7 +125,10 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <DialogTitle>Make a Payment</DialogTitle>
             </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4 py-4">
+            <form
+              onSubmit={handleSubmit(processSubmit)}
+              className="space-y-4 py-4"
+            >
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Account ID:</span>
@@ -108,62 +151,145 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">
+                <Label
+                  htmlFor="amount"
+                  className={errors.amount ? "text-red-500" : ""}
+                >
                   Payment Amount ($)
-                </label>
+                </Label>
                 <Input
+                  id="amount"
                   type="number"
                   step="0.01"
                   min="0.01"
                   placeholder="0.00"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  required
+                  className={errors.amount ? "border-red-500" : ""}
+                  {...register("amount", {
+                    required: "Amount is required",
+                    min: {
+                      value: 0.01,
+                      message: "Amount must be at least $0.01",
+                    },
+                    pattern: {
+                      value: /^\d+(\.\d{1,2})?$/,
+                      message: "Enter a valid amount",
+                    },
+                  })}
                 />
+                {errors.amount && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.amount.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Card Number</label>
+                <Label
+                  htmlFor="cardNumber"
+                  className={errors.cardNumber ? "text-red-500" : ""}
+                >
+                  Card Number
+                </Label>
                 <Input
+                  id="cardNumber"
                   type="text"
                   placeholder="1234 5678 9012 3456"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  required
+                  className={errors.cardNumber ? "border-red-500" : ""}
+                  {...register("cardNumber", {
+                    required: "Card number is required",
+                    pattern: {
+                      value: /^(\d{4}\s){3}\d{4}$/,
+                      message: "Enter a valid 16-digit card number",
+                    },
+                    onChange: handleCardNumberChange,
+                  })}
                 />
+                {errors.cardNumber && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.cardNumber.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Cardholder Name</label>
+                <Label
+                  htmlFor="cardholderName"
+                  className={errors.cardholderName ? "text-red-500" : ""}
+                >
+                  Cardholder Name
+                </Label>
                 <Input
+                  id="cardholderName"
                   type="text"
                   placeholder="John Doe"
-                  value={cardholderName}
-                  onChange={(e) => setCardholderName(e.target.value)}
-                  required
+                  className={errors.cardholderName ? "border-red-500" : ""}
+                  {...register("cardholderName", {
+                    required: "Cardholder name is required",
+                    minLength: {
+                      value: 3,
+                      message: "Name must be at least 3 characters",
+                    },
+                  })}
                 />
+                {errors.cardholderName && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.cardholderName.message}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Expiry Date</label>
+                  <Label
+                    htmlFor="expiryDate"
+                    className={errors.expiryDate ? "text-red-500" : ""}
+                  >
+                    Expiry Date
+                  </Label>
                   <Input
+                    id="expiryDate"
                     type="text"
                     placeholder="MM/YY"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                    required
+                    className={errors.expiryDate ? "border-red-500" : ""}
+                    {...register("expiryDate", {
+                      required: "Expiry date is required",
+                      pattern: {
+                        value: /^(0[1-9]|1[0-2])\/([0-9]{2})$/,
+                        message: "Format: MM/YY",
+                      },
+                    })}
                   />
+                  {errors.expiryDate && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.expiryDate.message}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">CVV</label>
+                  <Label
+                    htmlFor="cvv"
+                    className={errors.cvv ? "text-red-500" : ""}
+                  >
+                    CVV
+                  </Label>
                   <Input
+                    id="cvv"
                     type="text"
                     placeholder="123"
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value)}
-                    required
+                    className={errors.cvv ? "border-red-500" : ""}
+                    {...register("cvv", {
+                      required: "CVV is required",
+                      pattern: {
+                        value: /^[0-9]{3,4}$/,
+                        message: "3-4 digits only",
+                      },
+                    })}
                   />
+                  {errors.cvv && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {errors.cvv.message}
+                    </p>
+                  )}
                 </div>
               </div>
 

@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -110,6 +111,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
+        <DialogDescription className="sr-only">
+          Payment form for your energy account
+        </DialogDescription>
         {isSuccess ? (
           <div className="flex flex-col items-center py-6">
             <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
